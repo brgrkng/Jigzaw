@@ -42,7 +42,7 @@ export async function preparePuzzle(file: File) {
   if (crop.w * crop.h < MIN_PIXELS) {
     const size = `${bitmap.width}×${bitmap.height}`
     bitmap.close()
-    throw new UploadError(`That image is too small (${size}). It needs about 1.2 megapixels, like 1280×960.`)
+    throw new UploadError(`That image is too small (${size}). It needs to be at least 600×600, or about that many pixels.`)
   }
   const full = toJpeg(bitmap, crop, MAX_EDGE, 0.85)
   const thumb = toJpeg(bitmap, crop, THUMB_EDGE, 0.75)

@@ -10,8 +10,8 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 - **Players:** only Mesba and Kazi, email/password sign-in (usernames map to `<name>@jigzaw.game`).
 - **Waiting room:** both players must be ready. Being offline for more than 30 seconds (closed tab, closed browser, lost wifi) un-readies you. A quick refresh doesn't.
 - **Main menu:** a grid of puzzles with an **Upload image** button above it, and an empty state when there are none. Pick a puzzle, then a difficulty; the other player gets an accept/decline prompt. Accept opens the board, decline returns to the menu.
-- **Puzzles:** Easy ≈ 50, Medium ≈ 150, Hard ≈ 300 pieces (a 4th tier is planned for later). We keep the photo's aspect ratio and pick the grid that keeps pieces closest to square, so counts are targets, not exact. Only extreme panoramas (wider than about 3:1) get cropped.
-- **Uploads:** image files only, ≤ 25 MB, ≥ ~1.2 MP (so every Hard piece is at least ~64 px), with an upload cooldown. Images are downscaled in the browser before saving.
+- **Puzzles:** Easy ≈ 30, Medium ≈ 100, Hard ≈ 200 pieces (a 4th tier is planned for later). We keep the photo's aspect ratio and pick the grid closest to the count with near-square pieces (at most 25% off square), so counts are targets, not exact. Only extreme panoramas (wider than about 3:1) get cropped.
+- **Uploads:** image files only, ≤ 25 MB, at least 600×600 or the same pixel count (Hard pieces are then ~43 px; small photos look soft when zoomed right in), with an upload cooldown. Images are downscaled in the browser before saving.
 - **Board:** a large, zoomable play area with a frame outline in the middle. Click a piece to select it; the selection is outlined in the player's color (blue for whoever started the match, orange for the other player). Move pieces, and rotate them in 90° steps both ways.
 - **Locks:** a piece or group held by one player can't be grabbed by the other. Trying plays `meep_merp.mp3`, a placeholder you'll replace with your own file.
 - **Snapping:** a piece snaps only to its correct neighbor, with the correct connector and the correct rotation. Joined pieces then move and rotate as one group.
@@ -39,7 +39,7 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 ## M2 — Puzzle generator and solo board ✅
 
 - Seeded piece-shape generator with classic and modern connector variants. The same seed always gives the same pieces, so we only save `seed + grid` per difficulty.
-- Grid sizing for 50 / 150 / 300 that respects the aspect ratio.
+- Grid sizing for 30 / 100 / 200 that respects the aspect ratio.
 - Canvas board: pan and zoom, the frame outline, and scattered, randomly rotated pieces.
 - Select (outlined), drag, and rotate (Q / E keys, or right-click and Shift + right-click).
 - Neighbor snapping and grouping, sticky frame borders, and a completion lock with a little celebration.
@@ -48,11 +48,11 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 **Test it**: run `npm run dev`, open http://localhost:5173/?solo#board, and use **Choose image** to try your own photos.
 - [ ] Finish an Easy puzzle alone; check that snapping only works with the correct rotation.
 - [ ] Edge and corner pieces slide onto the frame border.
-- [ ] Zoom and pan stay smooth with 300 pieces.
+- [ ] Zoom and pan stay smooth with 200 pieces.
 
 ## M3 — Upload and puzzle library 🧪 ready to test
 
-- Upload button with checks: file type, ≤ 25 MB, ≥ ~1.2 MP, and a cooldown enforced in the database rules, not just the UI.
+- Upload button with checks: file type, ≤ 25 MB, at least 600×600, and a cooldown enforced in the database rules, not just the UI.
 - Downscale in the browser (~2560 px long edge JPEG) plus a thumbnail, then save the image and all three difficulty definitions to RTDB.
 - Main-menu puzzle grid with thumbnails, the empty state, and a difficulty picker.
 

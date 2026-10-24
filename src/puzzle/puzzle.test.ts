@@ -4,8 +4,8 @@ import { checkDone, mergeNeighbors, rotateGroup, scatter, stickToFrame, toWorld,
 
 describe('gridFor', () => {
   test('4:3 photos get exact, square-piece grids', () => {
-    expect(gridFor(1600, 1200, 50)).toEqual({ cols: 8, rows: 6 })
-    expect(gridFor(1600, 1200, 300)).toEqual({ cols: 20, rows: 15 })
+    expect(gridFor(1600, 1200, 30)).toEqual({ cols: 6, rows: 5 })
+    expect(gridFor(1600, 1200, 200)).toEqual({ cols: 16, rows: 12 })
   })
 
   test.each([[16, 9], [9, 16], [1, 1], [3, 1], [3, 2]])('%i:%i stays near target with near-square pieces', (w, h) => {
@@ -13,8 +13,8 @@ describe('gridFor', () => {
       const { cols, rows } = gridFor(w * 1000, h * 1000, target)
       expect(Math.abs(cols * rows - target) / target).toBeLessThan(0.12)
       const pieceAspect = (w / cols) / (h / rows)
-      expect(pieceAspect).toBeGreaterThan(0.8)
-      expect(pieceAspect).toBeLessThan(1.25)
+      expect(pieceAspect).toBeGreaterThanOrEqual(0.8)
+      expect(pieceAspect).toBeLessThanOrEqual(1.25)
     }
   })
 })

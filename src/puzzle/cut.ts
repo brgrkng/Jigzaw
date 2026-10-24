@@ -1,8 +1,8 @@
-export const DIFFICULTIES = { easy: 50, medium: 150, hard: 300 } as const
+export const DIFFICULTIES = { easy: 30, medium: 100, hard: 200 } as const
 export type Difficulty = keyof typeof DIFFICULTIES
 
-/** Every Hard piece should be at least ~64px across: 300 × 64² ≈ 1.2 MP. */
-export const MIN_PIXELS = 1_200_000
+/** 600×600 (or the same pixel count in another shape): Hard pieces come out ~42px across at the smallest. */
+export const MIN_PIXELS = 360_000
 
 /** Grid closest to `target` pieces whose pieces are closest to square, keeping the image's aspect ratio. */
 export function gridFor(width: number, height: number, target: number) {
@@ -10,9 +10,9 @@ export function gridFor(width: number, height: number, target: number) {
   let best = { cols: 2, rows: 2, score: Infinity }
   for (let cols = 2; cols <= target; cols++) {
     const ideal = cols / aspect
-    for (const rows of [Math.floor(ideal), Math.ceil(ideal)]) {
-      if (rows < 2) continue
-      const score = Math.abs(cols * rows - target) / target + Math.abs(Math.log((aspect * rows) / cols))
+    for (let rows = Math.max(2, Math.floor(ideal) - 1); rows <= Math.ceil(ideal) + 1; rows++) {
+      // Hitting the piece count matters more than perfectly square pieces.
+      const score = Math.abs(cols * rows - target) / target + 0.5 * Math.abs(Math.log((aspect * rows) / cols))
       if (score < best.score) best = { cols, rows, score }
     }
   }
