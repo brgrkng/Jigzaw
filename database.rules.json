@@ -1,0 +1,16 @@
+{
+  "rules": {
+    ".read": "auth != null && auth.token.email.matches(/^(mesba|kazi)@jigzaw\\.game$/)",
+    "players": {
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && auth.token.email.matches(/^(mesba|kazi)@jigzaw\\.game$/)",
+        ".validate": "newData.hasChildren(['name', 'ready', 'online', 'lastSeen'])",
+        "name": { ".validate": "newData.val() === 'Mesba' || newData.val() === 'Kazi'" },
+        "ready": { ".validate": "newData.isBoolean()" },
+        "online": { ".validate": "newData.isBoolean()" },
+        "lastSeen": { ".validate": "newData.isNumber() && newData.val() <= now" },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}

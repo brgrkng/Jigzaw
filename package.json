@@ -1,0 +1,20 @@
+{
+  "name": "jigzaw",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "firebase emulators:exec --only auth,database --ui \"npm run seed && vite\"",
+    "seed": "node --env-file-if-exists=.env.local scripts/seed.mjs",
+    "build": "tsc && vite build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "firebase": "^13.1.0"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.34.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}
