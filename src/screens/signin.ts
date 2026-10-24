@@ -3,6 +3,9 @@ import { auth } from '../firebase'
 import { logo } from '../icons'
 import { emailFor, usernameFor } from '../players'
 
+// Same message for unknown user and wrong password, so it doesn't reveal who can log in.
+const LOGIN_FAILED = 'Login failed. Check your username and password.'
+
 export function renderSignIn(root: HTMLElement) {
   root.innerHTML = `
     <section class="screen center">
@@ -29,7 +32,7 @@ export function renderSignIn(root: HTMLElement) {
     e.preventDefault()
     const data = new FormData(form)
     const username = usernameFor(String(data.get('username')))
-    if (!username) return fail('Only Mesba and Kazi can play here.')
+    if (!username) return fail(LOGIN_FAILED)
     error.hidden = true
     button.disabled = true
     button.textContent = 'Signing in…'
@@ -39,7 +42,7 @@ export function renderSignIn(root: HTMLElement) {
       const code = (err as { code?: string }).code
       fail(code === 'auth/too-many-requests' ? 'Too many tries, take a breather and try again in a minute.'
         : code === 'auth/network-request-failed' ? "Can't reach the server. Check your connection."
-        : 'That password doesn’t match. Try again?')
+        : LOGIN_FAILED)
       button.disabled = false
       button.textContent = "Let's play"
     }
