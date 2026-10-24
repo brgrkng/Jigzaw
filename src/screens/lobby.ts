@@ -1,11 +1,11 @@
 import { signOut, type User } from 'firebase/auth'
-import { get, onDisconnect, onValue, ref, serverTimestamp, update } from 'firebase/database'
+import { get, onDisconnect, onValue, ref, serverTimestamp, set, update } from 'firebase/database'
 import { auth, db } from '../firebase'
 import { logo } from '../icons'
 import { isReady, statusOf, usernameFor, USERNAMES, type Player, type Username } from '../players'
 import { renderMenu } from './menu'
 
-export type Lobby = { name: Username; setReady(ready: boolean): Promise<void>; leave(): Promise<void> }
+export type Lobby = { uid: string; name: Username; setReady(ready: boolean): Promise<void>; leave(): Promise<void> }
 export type View = { update(players: Player[], now: number): void; unmount(): void }
 
 /** Keeps presence up to date and shows the waiting room until both players are ready, then the menu. */
@@ -19,6 +19,7 @@ export function startLobby(root: HTMLElement, user: User) {
   let view: View | undefined
 
   const lobby: Lobby = {
+    uid: user.uid,
     name,
     setReady: ready => update(me, { ready }),
     async leave() {
@@ -46,9 +47,11 @@ export function startLobby(root: HTMLElement, user: User) {
     onValue(ref(db, '.info/connected'), async s => {
       if (!s.val()) return
       const prev = (await get(me)).val() as Player | null
-      await update(me, { name, online: true, lastSeen: serverTimestamp(), ready: isReady(prev ?? undefined, now()) })
-      // Queued after the record exists, or the rules reject the partial write.
+      // The rules need a full record before the partial "gone" write can be queued.
+      if (!prev) await set(me, { name, ready: false, online: false, lastSeen: serverTimestamp() })
+      // Queue "gone" before claiming "online", so a tab closed in between can't leave a ghost that's online forever.
       await onDisconnect(me).update({ online: false, lastSeen: serverTimestamp() })
+      await update(me, { name, online: true, lastSeen: serverTimestamp(), ready: isReady(prev ?? undefined, now()) })
     }),
     onValue(ref(db, 'players'), s => { players = Object.values(s.val() ?? {}); render() }),
   ]

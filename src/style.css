@@ -147,6 +147,54 @@ small { font-size: 0.65em; color: var(--ink-soft); font-weight: 600; }
 .empty .piece-icon { width: 72px; height: 72px; transform: rotate(-8deg); }
 .empty p { color: var(--ink-soft); max-width: 36ch; }
 
+/* Upload + puzzle grid */
+.upload { display: flex; align-items: center; gap: 14px; }
+.upload-status { font-weight: 800; color: var(--ink-soft); }
+.upload-status.ok { color: #12784a; }
+.upload-status.error { color: var(--red); max-width: 44ch; }
+.puzzle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 28px; }
+.puzzle-card {
+  padding: 10px 10px 12px;
+  display: grid; gap: 10px;
+  font: inherit; color: inherit; text-align: left;
+  cursor: pointer;
+  transition: transform 160ms ease-out, box-shadow 160ms ease-out;
+}
+.puzzle-card:hover { transform: translate(-2px, -3px) rotate(-1deg); box-shadow: 7px 8px 0 var(--ink); }
+.puzzle-card:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.puzzle-card img, .picker-thumb {
+  display: block; width: 100%;
+  aspect-ratio: 4 / 3; object-fit: cover;
+  border: 2px solid var(--ink); border-radius: 10px;
+  background: var(--cream);
+}
+.puzzle-meta { font-family: var(--font-display); padding: 0 4px; }
+
+/* Difficulty picker */
+.picker { width: min(440px, calc(100vw - 32px)); padding: 26px; color: var(--ink); }
+.picker::backdrop { background: rgba(29, 27, 58, 0.45); }
+.picker form { display: grid; gap: 16px; }
+.picker-options { display: grid; gap: 10px; }
+.option {
+  position: relative;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px;
+  border: var(--border); border-radius: 14px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+.option input { position: absolute; opacity: 0; pointer-events: none; }
+.option:hover { background: var(--cream); }
+.option:has(input:checked) { background: var(--sun); box-shadow: var(--shadow-small); }
+.option:has(input:focus-visible) { outline: 3px dashed var(--blue); outline-offset: 3px; }
+.option-name { font: 600 1.2rem var(--font-display); }
+.option-count { color: var(--ink-soft); font-weight: 800; }
+.hint { color: var(--ink-soft); font-size: 0.9rem; }
+.picker-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+.board-loading { position: absolute; inset: 0; display: grid; place-items: center; font: 600 1.4rem var(--font-display); }
+
 .segmented { display: flex; gap: 8px; }
 .segmented .btn[aria-pressed='false'] { background: var(--paper); }
 .btn-icon { width: 48px; padding: 0; font-size: 1.6rem; }
@@ -174,6 +222,7 @@ kbd {
   background: var(--cream);
 }
 .board-zoom { right: 20px; display: flex; gap: 8px; }
+@media (max-width: 760px) { .board-hint { display: none; } }
 .board-win {
   position: absolute;
   top: 38%; left: 50%;

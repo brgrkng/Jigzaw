@@ -36,7 +36,7 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 - [ ] Close one tab → the other shows a countdown, and after 30 s goes back to the waiting room with that player not ready.
 - [ ] Refresh a tab within 30 s → you stay ready.
 
-## M2 — Puzzle generator and solo board 🧪 ready to test
+## M2 — Puzzle generator and solo board ✅
 
 - Seeded piece-shape generator with classic and modern connector variants. The same seed always gives the same pieces, so we only save `seed + grid` per difficulty.
 - Grid sizing for 50 / 150 / 300 that respects the aspect ratio.
@@ -50,11 +50,13 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 - [ ] Edge and corner pieces slide onto the frame border.
 - [ ] Zoom and pan stay smooth with 300 pieces.
 
-## M3 — Upload and puzzle library
+## M3 — Upload and puzzle library 🧪 ready to test
 
 - Upload button with checks: file type, ≤ 25 MB, ≥ ~1.2 MP, and a cooldown enforced in the database rules, not just the UI.
 - Downscale in the browser (~2560 px long edge JPEG) plus a thumbnail, then save the image and all three difficulty definitions to RTDB.
 - Main-menu puzzle grid with thumbnails, the empty state, and a difficulty picker.
+
+Until M4, **Start** opens a solo preview of the board for whoever clicked it.
 
 **Test it**
 - [ ] Upload a big photo and see it appear for both players.

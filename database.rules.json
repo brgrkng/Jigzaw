@@ -11,6 +11,36 @@
         "lastSeen": { ".validate": "newData.isNumber() && newData.val() <= now" },
         "$other": { ".validate": false }
       }
+    },
+    "puzzles": {
+      "$id": {
+        ".write": "auth != null && auth.token.email.matches(/^(mesba|kazi)@jigzaw\\.game$/) && !data.exists()",
+        ".validate": "newData.hasChildren(['by', 'createdAt', 'width', 'height', 'thumb', 'cuts']) && newData.parent().parent().child('lastUpload').child(auth.uid).val() === now",
+        "by": { ".validate": "newData.val() === root.child('players').child(auth.uid).child('name').val()" },
+        "createdAt": { ".validate": "newData.val() === now" },
+        "width": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2560" },
+        "height": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2560" },
+        "thumb": { ".validate": "newData.isString() && newData.val().beginsWith('data:image/jpeg;base64,') && newData.val().length < 300000" },
+        "cuts": {
+          ".validate": "newData.hasChildren(['easy', 'medium', 'hard'])",
+          "$difficulty": {
+            ".validate": "($difficulty === 'easy' || $difficulty === 'medium' || $difficulty === 'hard') && newData.hasChildren(['cols', 'rows', 'seed'])"
+          }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+    "images": {
+      "$id": {
+        ".write": "auth != null && auth.token.email.matches(/^(mesba|kazi)@jigzaw\\.game$/) && !data.exists()",
+        ".validate": "newData.isString() && newData.val().beginsWith('data:image/jpeg;base64,') && newData.val().length < 8000000 && newData.parent().parent().child('puzzles').child($id).exists()"
+      }
+    },
+    "lastUpload": {
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && auth.token.email.matches(/^(mesba|kazi)@jigzaw\\.game$/)",
+        ".validate": "newData.val() === now && (!data.exists() || data.val() < now - 60000)"
+      }
     }
   }
 }
