@@ -1,5 +1,5 @@
 import { signOut, type User } from 'firebase/auth'
-import { get, onDisconnect, onValue, ref, serverTimestamp, set, update } from 'firebase/database'
+import { get, onDisconnect, onValue, ref, remove, serverTimestamp, set, update } from 'firebase/database'
 import { auth, db } from '../firebase'
 import { logo } from '../icons'
 import { isReady, statusOf, usernameFor, USERNAMES, type Player, type Username } from '../players'
@@ -34,6 +34,8 @@ export function startLobby(root: HTMLElement, user: User) {
     const want = USERNAMES.every(n => isReady(players.find(p => p.name === n), t)) ? 'menu' : 'waiting'
     if (want !== screen) {
       view?.unmount()
+      // Someone left or dropped for good: any match in progress ends (its board stays saved).
+      if (want === 'waiting') remove(ref(db, 'match'))
       screen = want
       view = want === 'menu' ? renderMenu(root, lobby) : renderWaiting(root, lobby)
     }
@@ -53,7 +55,10 @@ export function startLobby(root: HTMLElement, user: User) {
       await onDisconnect(me).update({ online: false, lastSeen: serverTimestamp() })
       await update(me, { name, online: true, lastSeen: serverTimestamp(), ready: isReady(prev ?? undefined, now()) })
     }),
-    onValue(ref(db, 'players'), s => { players = Object.values(s.val() ?? {}); render() }),
+    onValue(ref(db, 'players'), s => {
+      players = Object.entries<Player>(s.val() ?? {}).map(([uid, p]) => ({ ...p, uid }))
+      render()
+    }),
   ]
   const timer = setInterval(render, 1000)
 

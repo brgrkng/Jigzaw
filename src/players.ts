@@ -7,7 +7,8 @@ export const PLAYER_COLORS = { blue: '#2f7bf5', orange: '#ff8a2a' } as const
 /** Offline longer than this (closed tab, lost wifi) and you're no longer ready. */
 export const GRACE_MS = 30_000
 
-export type Player = { name: Username; ready: boolean; online: boolean; lastSeen: number }
+/** `uid` is the record's key, filled in on read; it isn't stored. */
+export type Player = { uid?: string; name: Username; ready: boolean; online: boolean; lastSeen: number }
 
 export const emailFor = (username: string) => `${username.trim().toLowerCase()}@jigzaw.game`
 

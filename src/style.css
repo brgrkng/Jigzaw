@@ -169,6 +169,21 @@ small { font-size: 0.65em; color: var(--ink-soft); font-weight: 600; }
   background: var(--cream);
 }
 .puzzle-meta { font-family: var(--font-display); padding: 0 4px; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 4px; }
+.badges:empty { display: none; }
+.badge {
+  font: 600 0.8rem var(--font-display);
+  padding: 2px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+}
+.badge-done { background: var(--mint); }
+.notice { width: min(420px, calc(100vw - 32px)); padding: 26px; color: var(--ink); text-align: center; }
+.notice::backdrop { background: rgba(29, 27, 58, 0.45); }
+.notice form { display: grid; gap: 14px; }
+.notice .picker-actions { justify-content: center; }
+.dot { width: 14px; height: 14px; border: 2px solid var(--ink); border-radius: 50%; flex: none; }
 
 /* Difficulty picker */
 .picker { width: min(440px, calc(100vw - 32px)); padding: 26px; color: var(--ink); }

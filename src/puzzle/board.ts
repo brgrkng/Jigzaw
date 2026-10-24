@@ -1,14 +1,23 @@
 import { generateEdges, pieceOutline, rng, type Point } from './cut'
-import { checkDone, groupCenter, mergeNeighbors, rotateGroup, scatter, stickToFrame, turn, type Group } from './state'
+import { checkDone, groupCenter, mergeNeighbors, rotateGroup, scatter, stickToFrame, tableFor, turn, type Group, type Puzzle } from './state'
 
 export type BoardOptions = {
   image: CanvasImageSource & { width: number; height: number }
   cols: number
   rows: number
+  /** Cut seed: decides the piece shapes (and the scatter when no `groups` are given). */
   seed: number
   /** Selection outline: blue for whoever started the match, orange for the other player. */
   color: string
-  onComplete?(): void
+  /** Start from shared or saved groups instead of a fresh scatter. */
+  groups?: Record<string, Group>
+  done?: boolean
+  // Hooks for keeping a shared game in sync; all optional so the board also works solo.
+  onSelect?(id: string | null): void
+  onMove?(id: string): void
+  onSettle?(change: { id: string; absorbed: string[]; done: boolean }): void
+  /** Tried to grab a group the other player is holding. */
+  onDenied?(): void
 }
 
 const ROTATE_MS = 140
@@ -20,8 +29,8 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
   const W = image.width, H = image.height
   const geometry = { cols, rows, pw: W / cols, ph: H / rows }
   const { pw, ph } = geometry
-  const pz = scatter(geometry, rng(seed ^ 0x9e3779b9))
-  const { board } = pz
+  const pz: Puzzle = opts.groups ? { ...geometry, groups: opts.groups, done: !!opts.done } : scatter(geometry, rng(seed ^ 0x9e3779b9))
+  const board = tableFor(geometry)
 
   // Cut every piece once into its own little bitmap; drawing is then just blitting.
   const edges = generateEdges(cols, rows, seed)
@@ -54,6 +63,9 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
 
   let order = Object.keys(pz.groups) // bottom → top
   let selected: string | null = null
+  /** Groups held by the other player → their color. */
+  let others: Record<string, string> = {}
+  let celebrated = false
   let drag: { id: string; last: Point } | null = null
   let pan: { x: number; y: number } | null = null
   const tweens = new Map<string, { pivot: Point; dir: number; start: number }>()
@@ -103,6 +115,7 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
   }
 
   function select(id: string | null) {
+    if (id !== selected) opts.onSelect?.(id)
     selected = id
     if (id) order = [...order.filter(o => o !== id), id]
     dirty = true
@@ -113,22 +126,29 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
     const p = pivot ?? groupCenter(geometry, grp)
     rotateGroup(grp, dir, p)
     tweens.set(id, { pivot: p, dir, start: performance.now() })
-    if (!drag) settle(id)
+    if (drag) opts.onMove?.(id)
+    else settle(id)
     dirty = true
   }
 
-  /** After a drop or turn: join neighbours, stick to the frame, and check for the win. */
+  /** After a drop or turn: join neighbours (not ones the other player holds), stick to the frame, check for the win. */
   function settle(id: string) {
-    const absorbed = mergeNeighbors(pz, id)
+    const absorbed = mergeNeighbors(pz, id, gid => !(gid in others))
     order = order.filter(o => !absorbed.includes(o))
     const grp = pz.groups[id]
     stickToFrame(pz, grp)
-    if (checkDone(pz, grp)) {
-      selected = null
-      celebrate()
-      opts.onComplete?.()
-    }
+    const done = checkDone(pz, grp)
+    opts.onSettle?.({ id, absorbed, done })
+    if (done) finish()
     dirty = true
+  }
+
+  function finish() {
+    pz.done = true
+    drag = null
+    select(null)
+    if (!celebrated) celebrate()
+    celebrated = true
   }
 
   // Input
@@ -136,7 +156,9 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
   canvas.addEventListener('pointerdown', e => {
     canvas.setPointerCapture(e.pointerId)
     const hit = pz.done ? null : hitTest(worldPoint(e))
-    if (e.button === 2) {
+    if (hit && hit in others) {
+      if (e.button !== 1) return opts.onDenied?.()
+    } else if (e.button === 2) {
       if (hit) { select(hit); rotate(hit, e.shiftKey ? -1 : 1) }
     } else if (e.button === 0 && hit) {
       select(hit)
@@ -155,6 +177,7 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
       grp.x += p[0] - drag.last[0]
       grp.y += p[1] - drag.last[1]
       drag.last = p
+      opts.onMove?.(drag.id)
       dirty = true
     } else if (pan) {
       cam.x -= (e.clientX - pan.x) / cam.z
@@ -243,14 +266,15 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
     ctx.rotate((grp.rot * Math.PI) / 2)
     const at = (i: number): Point => [(i % cols) * pw, Math.floor(i / cols) * ph]
 
-    if (id === selected) {
+    const outline = id === selected ? color : others[id]
+    if (outline) {
       // Lifted shadow while dragging, then a thick outline; the pieces drawn on top leave only the rim showing.
       if (drag?.id === id) {
         ctx.fillStyle = 'rgba(29, 27, 58, 0.22)'
         const [ox, oy] = turn([5 / cam.z, 7 / cam.z], -grp.rot)
         for (const i of grp.pieces) { ctx.save(); ctx.translate(at(i)[0] + ox, at(i)[1] + oy); ctx.fill(paths[i]); ctx.restore() }
       }
-      ctx.strokeStyle = color
+      ctx.strokeStyle = outline
       ctx.lineWidth = 7 / cam.z
       ctx.lineJoin = 'round'
       for (const i of grp.pieces) { ctx.save(); ctx.translate(...at(i)); ctx.stroke(paths[i]); ctx.restore() }
@@ -311,9 +335,27 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
     /** Call after changing `puzzle` from outside; keeps the stacking order in step with the groups. */
     redraw() {
       order = [...order.filter(id => id in pz.groups), ...Object.keys(pz.groups).filter(id => !order.includes(id))]
-      if (selected && !(selected in pz.groups)) selected = null
+      if (selected && !(selected in pz.groups)) select(null)
       dirty = true
     },
+    /** A group changed (or vanished) elsewhere. Ignored for the one being dragged here. */
+    applyGroup(id: string, grp: Group | null) {
+      if (drag?.id === id) return
+      if (grp) pz.groups[id] = grp
+      else delete pz.groups[id]
+      this.redraw()
+    },
+    setOthers(held: Record<string, string>) {
+      others = held
+      dirty = true
+    },
+    /** Let go of the current selection, e.g. when the other player grabbed the same group at the same moment. */
+    deselect() {
+      drag = null
+      select(null)
+    },
+    /** The other player placed the last piece. */
+    markDone: finish,
     destroy() {
       cancelAnimationFrame(raf)
       observer.disconnect()

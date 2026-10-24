@@ -47,8 +47,11 @@ export function rotateGroup(grp: Group, dir: 1 | -1, pivot: Point) {
   grp.rot = ((grp.rot + dir + 4) % 4) as Rot
 }
 
-/** Joins group `id` with every neighbouring group it lines up with. Returns the ids that were absorbed. */
-export function mergeNeighbors(pz: Puzzle, id: string): string[] {
+/**
+ * Joins group `id` with every neighbouring group it lines up with. Returns the ids that were absorbed.
+ * `canJoin` can rule groups out, like the one the other player is holding.
+ */
+export function mergeNeighbors(pz: Puzzle, id: string, canJoin: (gid: string) => boolean = () => true): string[] {
   const grp = pz.groups[id]
   const near = snapDistance(pz)
   const absorbed: string[] = []
@@ -64,7 +67,7 @@ export function mergeNeighbors(pz: Puzzle, id: string): string[] {
       for (const n of neighbors) {
         if (n === false) continue
         const gid = owner.get(n)
-        if (!gid || gid === id) continue
+        if (!gid || gid === id || !canJoin(gid)) continue
         const other = pz.groups[gid]
         if (other.rot !== grp.rot) continue
         if (Math.abs(other.x - grp.x) > near || Math.abs(other.y - grp.y) > near) continue
@@ -111,11 +114,23 @@ export function checkDone(pz: Puzzle, grp: Group) {
   return true
 }
 
-/** Fresh puzzle: one group per piece, randomly rotated and scattered around the frame on a jittered grid. */
-export function scatter(g: Geometry, random: () => number): Puzzle & { board: { x: number; y: number; w: number; h: number } } {
+/** The table: the frame plus plenty of room around it. */
+export function tableFor(g: Geometry) {
   const W = g.cols * g.pw, H = g.rows * g.ph
   const margin = 0.6 * Math.max(W, H)
-  const board = { x: -margin, y: -margin, w: W + 2 * margin, h: H + 2 * margin }
+  return { x: -margin, y: -margin, w: W + 2 * margin, h: H + 2 * margin }
+}
+
+/** Share of possible joins made so far: 0 when every piece is loose, 100 when it's one group. */
+export const progressOf = (pz: Puzzle) => {
+  const n = pz.cols * pz.rows
+  return Math.round(((n - Object.keys(pz.groups).length) / (n - 1)) * 100)
+}
+
+/** Fresh puzzle: one group per piece, randomly rotated and scattered around the frame on a jittered grid. */
+export function scatter(g: Geometry, random: () => number): Puzzle {
+  const W = g.cols * g.pw, H = g.rows * g.ph
+  const board = tableFor(g)
   const slot = 1.7 * Math.max(g.pw, g.ph)
 
   const slots: Point[] = []
@@ -139,5 +154,5 @@ export function scatter(g: Geometry, random: () => number): Puzzle & { board: { 
     const [cx, cy] = turn([(col + 0.5) * g.pw, (row + 0.5) * g.ph], rot)
     groups[`g${i}`] = { x: at[0] - cx, y: at[1] - cy, rot, pieces: [i] }
   }
-  return { ...g, groups, done: false, board }
+  return { ...g, groups, done: false }
 }
