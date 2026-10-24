@@ -207,15 +207,22 @@ export function mountBoard(host: HTMLElement, opts: BoardOptions) {
 
   // Rendering
   const dpr = () => window.devicePixelRatio || 1
-  const resize = () => {
-    canvas.width = Math.round(canvas.clientWidth * dpr())
-    canvas.height = Math.round(canvas.clientHeight * dpr())
-    dirty = true
-  }
-  let fitted = false
+  // The view scales with the window: same spot in the middle, same share of the table on screen.
+  let last = { w: 0, h: 0 }
   const observer = new ResizeObserver(() => {
-    resize()
-    if (!fitted && canvas.clientWidth) { fit(); fitted = true }
+    const now = view()
+    if (!now.w || !now.h) return
+    canvas.width = Math.round(now.w * dpr())
+    canvas.height = Math.round(now.h * dpr())
+    if (!last.w) fit()
+    else {
+      const centerX = cam.x + last.w / 2 / cam.z, centerY = cam.y + last.h / 2 / cam.z
+      cam.z *= Math.min(now.w / board.w, now.h / board.h) / Math.min(last.w / board.w, last.h / board.h)
+      cam.x = centerX - now.w / 2 / cam.z
+      cam.y = centerY - now.h / 2 / cam.z
+    }
+    last = now
+    dirty = true
   })
   observer.observe(canvas)
 
