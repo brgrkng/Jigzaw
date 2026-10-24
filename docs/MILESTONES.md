@@ -20,7 +20,7 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 - **Stack:** Vite + TypeScript (no UI framework), Canvas 2D board, Firebase Auth + Realtime Database (no Cloud Storage, so we stay on the free Spark plan), hosted on GitHub Pages.
 - **Out of scope for now:** phone/touch, the 4th tier, sign-up or more users, deleting or renaming puzzles, solo play, chat, scoring and timers.
 
-## M1 — Foundations: sign-in and waiting room
+## M1 — Foundations: sign-in and waiting room ✅
 
 - Vite + TS scaffold with the theme: Fredoka + Nunito fonts, chunky ink outlines, solid offset shadows, no gradients.
 - Firebase emulators (Auth + RTDB) for local dev. `npm run dev` starts everything and creates both users.
@@ -36,7 +36,7 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 - [ ] Close one tab → the other shows a countdown, and after 30 s goes back to the waiting room with that player not ready.
 - [ ] Refresh a tab within 30 s → you stay ready.
 
-## M2 — Puzzle generator and solo board
+## M2 — Puzzle generator and solo board 🧪 ready to test
 
 - Seeded piece-shape generator with classic and modern connector variants. The same seed always gives the same pieces, so we only save `seed + grid` per difficulty.
 - Grid sizing for 50 / 150 / 300 that respects the aspect ratio.
@@ -45,7 +45,7 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 - Neighbor snapping and grouping, sticky frame borders, and a completion lock with a little celebration.
 - Runs solo from a local image (dev-only page) so the feel can be tuned before networking.
 
-**Test it**
+**Test it**: run `npm run dev`, open http://localhost:5173/?solo#board, and use **Choose image** to try your own photos.
 - [ ] Finish an Easy puzzle alone; check that snapping only works with the correct rotation.
 - [ ] Edge and corner pieces slide onto the frame border.
 - [ ] Zoom and pan stay smooth with 300 pieces.

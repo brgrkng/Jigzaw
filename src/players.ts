@@ -1,6 +1,9 @@
 export const USERNAMES = ['Mesba', 'Kazi'] as const
 export type Username = (typeof USERNAMES)[number]
 
+/** Board selection colors: blue for whoever started the match, orange for the other player. Matches --blue / --orange. */
+export const PLAYER_COLORS = { blue: '#2f7bf5', orange: '#ff8a2a' } as const
+
 /** Offline longer than this (closed tab, lost wifi) and you're no longer ready. */
 export const GRACE_MS = 30_000
 

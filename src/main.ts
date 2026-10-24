@@ -7,7 +7,11 @@ import { startLobby } from './screens/lobby'
 const root = document.getElementById('app')!
 let stop: (() => void) | undefined
 
-onAuthStateChanged(auth, user => {
-  stop?.()
-  stop = user ? startLobby(root, user) : renderSignIn(root)
-})
+if (import.meta.env.DEV && location.hash === '#board') {
+  import('./dev-board').then(m => m.runDevBoard(root))
+} else {
+  onAuthStateChanged(auth, user => {
+    stop?.()
+    stop = user ? startLobby(root, user) : renderSignIn(root)
+  })
+}
