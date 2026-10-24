@@ -17,3 +17,24 @@ This starts the Auth + Realtime Database emulators, creates the Mesba and Kazi a
 ```bash
 npm test
 ```
+
+## Firebase checklist (project `jigzaw-d0e87`)
+
+- [ ] **Authentication → Sign-in method:** Email/Password enabled.
+- [ ] **Authentication → Settings → User actions:** "Enable create (sign-up)" unticked.
+- [ ] **Authentication → Users:** `mesba@jigzaw.game` and `kazi@jigzaw.game` exist (the username on the login screen is the part before the @).
+- [ ] **Authentication → Settings → Authorized domains:** `brgrkng.github.io` added.
+- [ ] **Realtime Database → Rules:** the current [database.rules.json](database.rules.json) published. It grows with each milestone; republish whenever it changes.
+
+## Deploy
+
+Every push to `main` runs the tests, builds, and publishes to https://brgrkng.github.io/Jigzaw/ (see `.github/workflows/deploy.yml`).
+
+Database rules live in [database.rules.json](database.rules.json). After changing them, paste the file into the Firebase console (Realtime Database → Rules → Publish), or:
+
+```bash
+npx firebase login
+```
+```bash
+npx firebase deploy --only database -P prod
+```

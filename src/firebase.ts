@@ -2,8 +2,14 @@ import { initializeApp } from 'firebase/app'
 import { browserLocalPersistence, browserSessionPersistence, connectAuthEmulator, initializeAuth } from 'firebase/auth'
 import { connectDatabaseEmulator, getDatabase } from 'firebase/database'
 
-// Filled in at M6 from the Firebase console (the web config is public by design).
-const prodConfig = { apiKey: '', authDomain: '', databaseURL: '', projectId: '', appId: '' }
+// From the Firebase console. The web config is public by design; the database rules do the guarding.
+const prodConfig = {
+  apiKey: 'AIzaSyBYtQrh8rgxvhu-eFK201icGIy9JmXb158',
+  authDomain: 'jigzaw-d0e87.firebaseapp.com',
+  databaseURL: 'https://jigzaw-d0e87-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'jigzaw-d0e87',
+  appId: '1:760680183092:web:c2ae7c430b89f742baa161',
+}
 const devConfig = { apiKey: 'demo', projectId: 'demo-jigzaw', databaseURL: 'https://demo-jigzaw-default-rtdb.firebaseio.com' }
 
 const dev = import.meta.env.DEV

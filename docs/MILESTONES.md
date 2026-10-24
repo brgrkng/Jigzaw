@@ -50,33 +50,31 @@ Each milestone ends with a short "Test it" list. We fix bugs found there before 
 - [ ] Edge and corner pieces slide onto the frame border.
 - [ ] Zoom and pan stay smooth with 200 pieces.
 
-## M3 — Upload and puzzle library 🧪 ready to test
+## M3 — Upload and puzzle library ✅
 
 - Upload button with checks: file type, ≤ 25 MB, at least 600×600, and a cooldown enforced in the database rules, not just the UI.
 - Downscale in the browser (~2560 px long edge JPEG) plus a thumbnail, then save the image and all three difficulty definitions to RTDB.
 - Main-menu puzzle grid with thumbnails, the empty state, and a difficulty picker.
-
-Until M4, **Start** opens a solo preview of the board for whoever clicked it.
 
 **Test it**
 - [ ] Upload a big photo and see it appear for both players.
 - [ ] A tiny or non-image file is rejected with a clear reason.
 - [ ] A second upload right away is blocked by the cooldown.
 
-## M4 — Live co-op match
+## M4 — Live co-op match 🧪 built; checked in two local tabs, waiting on your two-device test
 
 - Match invite: the other player gets an accept/decline prompt. The starter is blue, the other orange.
 - Shared board state in RTDB: positions, rotations and groups sync live.
-- Piece and group locks via database transactions, plus `meep_merp.mp3` on a denied grab.
+- Each player holds at most one group at a time; grabbing the other player's plays `meep_merp.mp3`. If you both grab the same group in the same instant, the match starter keeps it.
 - Each player sees the other's selection outlined in their color.
-- Exit, or a drop longer than 30 s, sends both players back to the menu.
+- **Back to menu** sends both players to the menu. A drop longer than 30 s ends the match and, since that player is no longer ready, the one left goes to the waiting room. The board stays saved either way.
 
 **Test it**
 - [ ] Two tabs solve a Medium puzzle together.
 - [ ] Grabbing what the other player holds plays the sound and does nothing else.
 - [ ] Declining an invite returns both to the menu.
 
-## M5 — Saves and resume
+## M5 — Saves and resume 🧪 built; checked in two local tabs
 
 - The game state persists per puzzle + difficulty, saved after every move.
 - Progress % shown on each difficulty, and Resume / Restart, both going through the invite.
@@ -85,13 +83,11 @@ Until M4, **Start** opens a solo preview of the board for whoever clicked it.
 - [ ] Quit halfway, sign out, come back the next day, and Resume puts every piece where it was.
 - [ ] Restart resets to a fresh scatter.
 
-## M6 — Deploy
+## M6 — Deploy 🧪 live at https://brgrkng.github.io/Jigzaw/ once the Firebase steps in the README are done
 
 - A real Firebase project (Spark plan): enable Email/Password, **disable sign-up**, create the two users, and paste the web config.
 - Deploy rules, plus a GitHub Actions workflow to GitHub Pages.
 - Two-device test over the internet.
-
-You can move this earlier whenever you want to test on two real devices. It only needs your Firebase project.
 
 ## Later
 

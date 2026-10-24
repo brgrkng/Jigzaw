@@ -1,1 +1,1 @@
-{ "projects": { "default": "demo-jigzaw" } }
+{ "projects": { "default": "demo-jigzaw", "prod": "jigzaw-d0e87" } }
